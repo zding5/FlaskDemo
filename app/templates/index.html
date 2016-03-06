@@ -1,0 +1,84 @@
+<html>
+	<head>
+		{% if title %}
+		<title>{{ title }} - yoho</title>
+		{% else %}
+		<title>Welcome</title>
+		{% endif %}
+
+		<style>
+			div {
+				text-align: center;
+				width: 150px;
+			}
+
+			img {
+				height: 150px;
+				width: 150px;
+			}
+		</style>
+
+	</head>
+	<body>
+		<button id="addpic">Add One</button>
+		<button id="delpic">Del One</button>
+		<div class="wrap">
+		{% for pic in pics %}
+		<div>
+			<p>{{ pic.name }}</p>
+			<img id="{{ pic.id }}" src="https://s3-us-west-2.amazonaws.com/polyvoredata/full/{{ pic.link }}" />
+		</div>
+		{% endfor %}
+		</div>
+
+
+		<script src="/static/jquery-2.1.4.min.js"></script>
+		<script>
+			$(function() {
+				$('#addpic').click(function() {
+					$.ajax({
+						url: '/populate',
+						type: 'POST',
+						success: function(response) {
+							// console.log(response);
+							$('.wrap').append("<div><p>"+response['name']+"</p><img id="+response['id']+" src='https://s3-us-west-2.amazonaws.com/polyvoredata/full/"+response['link']+"' /></div>")		
+						},
+						error: function(error) {
+							console.log(error);
+						}
+					});
+
+				});
+				$('#delpic').click(function() {
+					$.ajax({
+						url: '/deleter',
+						type: 'DELETE',
+						success: function(response) {
+							$("#"+response['delid']).parent().remove();
+						},
+						error: function(error) {
+							console.log(error)
+						}
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
+
+<!-- https://s3-us-west-2.amazonaws.com/polyvoredata/full/ -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
