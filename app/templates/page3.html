@@ -1,0 +1,42 @@
+<form action="" method="post" name="post">
+	{{ form.hidden_tag() }}
+	<table>
+		<tr>
+			<td>Describe the event/occasion you are wearing this outfit.</td>
+		</tr>
+		<tr>
+			<td>{{ form.event(size=80, maxlength=200) }}</td>
+		</tr>
+		<br />
+
+		<tr>
+			<td>Describe the place/location you are wearing this outfit.</td>
+		</tr>
+		<tr>
+			<td>{{ form.location(size=80, maxlength=200) }}</td>
+		</tr>
+		<br />
+
+		<tr>
+			<td>Describe the weather you are wearing this outfit.</td>
+		</tr>
+		<tr>
+			<td>{{ form.weather(size=80, maxlength=200) }}</td>
+		</tr>
+		<br />
+
+		<tr>
+			<td>Describe the style of the outfit you are wearing.</td>
+		</tr>
+		<tr>
+			<td>{{ form.style(size=80, maxlength=200) }}</td>
+		</tr>
+		<br />
+
+		<tr>
+			<td><input type="submit" value="Post!"></td>
+		</tr>
+
+	</table>
+
+</form>
