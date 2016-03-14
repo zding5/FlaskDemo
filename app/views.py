@@ -29,8 +29,8 @@ def survey():
 			f.write(tempstring)
 
 		command1 = "/home/dddg/mallet-2.0.8RC3/bin/mallet import-file --input output.txt --output output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
-		os.system(command1)
-		return redirect(url_for('index'))
+		# os.system(command1)
+		# return redirect(url_for('index'))
 	return render_template('page3.html', form=form)
 
 
