@@ -38,11 +38,19 @@ def survey():
 		# command2 = "mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics app/mallet/doctops"
 		command2 = "/home/dddg/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics app/mallet/doctops"
 
+		command3 = "/home/dddg/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/styles.txt --output app/mallet/style_output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/descriptor.sequences"
+		command4 = "/home/dddg/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/style_output.sequences --inferencer app/mallet/inferencer.output.1 --output-doc-topics app/mallet/style_doctops"
 
 		os.system(command1)
 		print("done")
 		os.system(command2)
 		print("done2")
+
+		os.system(command3)
+		print("done3")
+		os.system(command4)
+		print("done4")
+
 		return redirect(url_for('index'))
 	return render_template('page3.html', form=form)
 
