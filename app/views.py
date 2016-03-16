@@ -28,18 +28,18 @@ def survey():
 		# with open("output.txt", "w+") as f:
 			# f.write(tempstring)
 
-		# command1 = "/home/dddg/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/output.txt --output output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
-		# command1 = "mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/words.txt --output app/mallet/output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
-		# command2 = "/home/dddg/mallet-2.0.8RC3/bin/mallet infer-topics --input output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics doctops"
-		# command2 = "mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics doctops"
 
-		# command1 = "mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/words.txt --output app/mallet/output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
-		command1 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/words.txt --output app/mallet/output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
-		# command2 = "mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics app/mallet/doctops"
-		command2 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics app/mallet/doctops"
+		#command1 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/words.txt --output app/mallet/output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/training.sequences"
+		#command2 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/output.sequences --inferencer app/mallet/inferencer.output.0 --output-doc-topics app/mallet/doctops"
 
-		command3 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/styles.txt --output app/mallet/style_output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/descriptor.sequences"
-		command4 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/style_output.sequences --inferencer app/mallet/inferencer.output.1 --output-doc-topics app/mallet/style_doctops"
+		#command3 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input app/mallet/styles.txt --output app/mallet/style_output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from app/mallet/descriptor.sequences"
+		#command4 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input app/mallet/style_output.sequences --inferencer app/mallet/inferencer.output.1 --output-doc-topics app/mallet/style_doctops"
+
+		command1 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input /home/ubuntu/Ding/FlaskDemo/app/mallet/words.txt --output /home/ubuntu/Ding/FlaskDemo/app/mallet/output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from /home/ubuntu/Ding/FlaskDemo/app/mallet/training.sequences"
+		command2 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input /home/ubuntu/Ding/FlaskDemo/app/mallet/output.sequences --inferencer /home/ubuntu/Ding/FlaskDemo/app/mallet/inferencer.output.0 --output-doc-topics /home/ubuntu/Ding/FlaskDemo/app/mallet/doctops"
+
+		command3 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input /home/ubuntu/Ding/FlaskDemo/app/mallet/styles.txt --output /home/ubuntu/Ding/FlaskDemo/app/mallet/style_output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from /home/ubuntu/Ding/FlaskDemo/app/mallet/descriptor.sequences"
+		command4 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input /home/ubuntu/Ding/FlaskDemo/app/mallet/style_output.sequences --inferencer /home/ubuntu/Ding/FlaskDemo/app/mallet/inferencer.output.1 --output-doc-topics /home/ubuntu/Ding/FlaskDemo/app/mallet/style_doctops"
 
 		os.system(command1)
 		print("done")
