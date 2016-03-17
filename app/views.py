@@ -52,8 +52,11 @@ def handle_survey_page3():
 	db.session.commit()
 
 	comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
-	file_saver_local("abstract", comp_str)
-	mallet_runner_local("abstract")
+	# file_saver_local("abstract", comp_str)
+	# mallet_runner_local("abstract")
+	file_saver_AWS("abstract", comp_str)
+	mallet_runner_AWS("abstract")
+
 
 	global topics
 	global phiMatrices
@@ -89,8 +92,10 @@ def handle_survey_page1():
 
 	comp_str = form.outfit_one.data+" "+form.outfit_two.data+" "+form.outfit_three.data
 
-	file_saver_local("concrete", comp_str)
-	mallet_runner_local("concrete")
+	# file_saver_local("concrete", comp_str)
+	# mallet_runner_local("concrete")
+	file_saver_AWS("concrete", comp_str)
+	mallet_runner_AWS("concrete")
 
 	global topics
 	global phiMatrices
@@ -191,10 +196,15 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 def getTopics():
 	phiMatrices = {}
 	labels = {}
-	labels['concrete'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/concrete.p","rb"))
-	labels['abstract'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/abstract.p","rb"))
-	wordweightfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/topicWordWeight.output"
-	keyfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/icmsdkeys.txt"
+	# labels['concrete'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/concrete.p","rb"))
+	# labels['abstract'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/abstract.p","rb"))
+	# wordweightfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/topicWordWeight.output"
+	# keyfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/icmsdkeys.txt"
+	labels['concrete'] = pickle.load(open(AWS_MALLET_FILES+"concrete.p","rb"))
+	labels['abstract'] = pickle.load(open(AWS_MALLET_FILES+"abstract.p","rb"))
+	wordweightfile = AWS_MALLET_FILES+"topicWordWeight.output"
+	keyfile = AWS_MALLET_FILES+"icmsdkeys.txt"
+
 	(topics,items)= dataPreprocessing(labels, keyfile,wordweightfile)
 	# mp = computeMarginalProb(items,topics)
 	numTopics = 150
@@ -218,9 +228,11 @@ def getTopics():
 def getItemsByStyle(topics,phiMatrices,AorC):
 	inferredTheta = {}
 	if AorC == "concrete":
-		thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/c2adoctops"
+		# thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/c2adoctops"
+		thetafile = AWS_MALLET_FILES+"c2adoctops"
 	else:
-		thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/a2cdoctops"	
+		# thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/a2cdoctops"
+		thetafile = AWS_MALLET_FILES+"a2cdoctops"	
 	with open(thetafile,"r") as f:
 		for lines in f:
 			data = lines.split('\t')
