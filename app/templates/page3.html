@@ -113,6 +113,9 @@ p{
 					<br />
 				</table>
 			</form>
+	
+			<div id="results"></div>
+
 		</div>
 	</div>
 
@@ -128,7 +131,7 @@ p{
 					for(key in response){
 						// console.log(response[key]);
 						// $(".wrapper").append("<p>"+response[key]+"</p>");
-						$(".content").append("<p>"+response[key]+"</p>");
+						$("#results").append("<p>"+response[key]+"</p>");
 					}
 					// console.log(response['line1']);
 					// $("div.wrapper").append(response);
