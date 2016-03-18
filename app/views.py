@@ -52,10 +52,10 @@ def handle_survey_page3():
 	db.session.commit()
 
 	comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
-	# file_saver_local("abstract", comp_str)
-	# mallet_runner_local("abstract")
-	file_saver_AWS("abstract", comp_str)
-	mallet_runner_AWS("abstract")
+	file_saver_local("abstract", comp_str)
+	mallet_runner_local("abstract")
+	# file_saver_AWS("abstract", comp_str)
+	# mallet_runner_AWS("abstract")
 
 
 	global topics
