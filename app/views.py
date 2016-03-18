@@ -69,6 +69,8 @@ def handle_survey_page3():
 @app.route('/page1', methods=['GET','POST'])
 def survey_page1():
 	# form = outfitcollection()
+	if request.method == "POST":
+		return redirect(url_for("survey_page3"))
 	form = outfitForm()
 
 	global topics

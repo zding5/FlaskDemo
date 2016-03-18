@@ -87,28 +87,28 @@ p{
 						<td style = "color: #566D7E; font-size: 20px">Describe the event/occasion you are wearing this outfit.</td>
 					</tr>
 					<tr>
-						<td>{{ form.event(size=80, maxlength=200) }}</td>
+						<td><div class="ui-widget">{{ form.event(size=80, maxlength=200) }}</div></td>
 					</tr>
 					<br />
 					<tr>
 						<td style = "color: #566D7E; font-size: 20px">Describe the place/location you are wearing this outfit.</td>
 					</tr>
 					<tr>
-						<td>{{ form.location(size=80, maxlength=200) }}</td>
+						<td><div class="ui-widget">{{ form.location(size=80, maxlength=200) }}</div></td>
 					</tr>
 					<br />
 					<tr>
 						<td style = "color: #566D7E; font-size: 20px">Describe the weather you are wearing this outfit.</td>
 					</tr>
 					<tr>
-						<td>{{ form.weather(size=80, maxlength=200) }}</td>
+						<td><div class="ui-widget">{{ form.weather(size=80, maxlength=200) }}</div></td>
 					</tr>
 					<br />
 					<tr>
 						<td style = "color: #566D7E; font-size: 20px">Describe the style of the outfit you are wearing.</td>
 					</tr>
 					<tr>
-						<td>{{ form.style(size=80, maxlength=200) }}</td>
+						<td><div class="ui-widget">{{ form.style(size=80, maxlength=200) }}</div></td>
 					</tr>
 					<br />
 				</table>
@@ -120,6 +120,9 @@ p{
 	</div>
 
 	<script src="/static/jquery-2.1.4.min.js"></script>
+	<link rel="stylesheet" href="static/jquery-ui-1.11.4.custom/jquery-ui.css">
+	<script src="static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+	<script src="/static/auto_test_page3.js"></script>
 	<script type="text/javascript">
 		// $("button").on("click", function() {
 		$("#savebutton").on("click", function() {
