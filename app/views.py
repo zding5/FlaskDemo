@@ -92,17 +92,16 @@ def handle_survey_page1():
 
 	comp_str = form.outfit_one.data+" "+form.outfit_two.data+" "+form.outfit_three.data
 
-	# file_saver_local("concrete", comp_str)
-	# mallet_runner_local("concrete")
-	file_saver_AWS("concrete", comp_str)
-	mallet_runner_AWS("concrete")
+	file_saver_local("concrete", comp_str)
+	mallet_runner_local("concrete")
+	# file_saver_AWS("concrete", comp_str)
+	# mallet_runner_AWS("concrete")
 
 	global topics
 	global phiMatrices
 
 	topItemsByStyleWord = getItemsByStyle(topics,phiMatrices,"concrete")
 	print(topItemsByStyleWord)
-	# return jsonify(doctops_return)
 	return jsonify(topItemsByStyleWord)
 
 
@@ -196,14 +195,14 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 def getTopics():
 	phiMatrices = {}
 	labels = {}
-	# labels['concrete'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/concrete.p","rb"))
-	# labels['abstract'] = pickle.load(open("/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/abstract.p","rb"))
-	# wordweightfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/topicWordWeight.output"
-	# keyfile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/icmsdkeys.txt"
-	labels['concrete'] = pickle.load(open(AWS_MALLET_FILES+"concrete.p","rb"))
-	labels['abstract'] = pickle.load(open(AWS_MALLET_FILES+"abstract.p","rb"))
-	wordweightfile = AWS_MALLET_FILES+"topicWordWeight.output"
-	keyfile = AWS_MALLET_FILES+"icmsdkeys.txt"
+	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
+	labels['abstract'] = pickle.load(open("app/mallet/abstract.p","rb"))
+	wordweightfile = "app/mallet/topicWordWeight.output"
+	keyfile = "app/mallet/icmsdkeys.txt"
+	# labels['concrete'] = pickle.load(open(AWS_MALLET_FILES+"concrete.p","rb"))
+	# labels['abstract'] = pickle.load(open(AWS_MALLET_FILES+"abstract.p","rb"))
+	# wordweightfile = AWS_MALLET_FILES+"topicWordWeight.output"
+	# keyfile = AWS_MALLET_FILES+"icmsdkeys.txt"
 
 	(topics,items)= dataPreprocessing(labels, keyfile,wordweightfile)
 	# mp = computeMarginalProb(items,topics)
@@ -228,11 +227,11 @@ def getTopics():
 def getItemsByStyle(topics,phiMatrices,AorC):
 	inferredTheta = {}
 	if AorC == "concrete":
-		# thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/c2adoctops"
-		thetafile = AWS_MALLET_FILES+"c2adoctops"
+		thetafile = "app/mallet/c2adoctops"
+		# thetafile = AWS_MALLET_FILES+"c2adoctops"
 	else:
-		# thetafile = "/Users/dzq/Desktop/ResearchRanjitha/FlaskDemo/app/mallet/a2cdoctops"
-		thetafile = AWS_MALLET_FILES+"a2cdoctops"	
+		thetafile = "app/mallet/a2cdoctops"
+		# thetafile = AWS_MALLET_FILES+"a2cdoctops"
 	with open(thetafile,"r") as f:
 		for lines in f:
 			data = lines.split('\t')
