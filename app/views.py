@@ -7,9 +7,6 @@ import os, operator
 import pickle
 import numpy as np
 
-AWS_MALLET_APP = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet/"
-AWS_MALLET_FILES = "/home/ubuntu/Ding/FlaskDemo/app/mallet/"
-AWS_FLASK = "/home/ubuntu/Ding/FlaskDemo/"
 
 LOCAL_MALLET_APP = "mallet-2.0.8RC3/bin/mallet"
 
@@ -31,42 +28,6 @@ def index():
 		topics, items, phiMatrices, topItemsByTopic = getTopics()
 		return "done"
 	return render_template("index.html")
-
-
-
-
-@app.route('/page3', methods=['GET','POST'])
-def survey_page3():
-	form = surveyForm()
-
-	return render_template('page3.html', form=form)
-
-@app.route('/page31', methods=['POST','GET'])
-def handle_survey_page3():
-	print(request.form)
-	form = surveyForm(request.form)
-	print(form.event.data)
-	survey_result = Survey(event=form.event.data,
-							location=form.location.data,
-							weather=form.weather.data,
-							style=form.style.data)
-	db.session.add(survey_result)
-	db.session.commit()
-
-	comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
-	file_saver_local("abstract", comp_str)
-	mallet_runner_local("abstract")
-	# file_saver_AWS("abstract", comp_str)
-	# mallet_runner_AWS("abstract")
-
-
-	global topics
-	global phiMatrices
-
-	topItemsByStyleWord = getItemsByStyle(topics,phiMatrices,"abstract")
-	print(topItemsByStyleWord)
-	# return jsonify(doctops_return)
-	return jsonify(topItemsByStyleWord)
 
 @app.route('/page1', methods=['GET','POST'])
 def survey_page1():
@@ -99,6 +60,38 @@ def handle_survey_page1():
 	print(topItemsByStyleWord)
 	return jsonify(topItemsByStyleWord)
 
+
+@app.route('/page3', methods=['GET','POST'])
+def survey_page3():
+	form = surveyForm()
+
+	return render_template('page3.html', form=form)
+
+@app.route('/page31', methods=['POST','GET'])
+def handle_survey_page3():
+	print(request.form)
+	form = surveyForm(request.form)
+	print(form.event.data)
+	survey_result = Survey(event=form.event.data,
+							location=form.location.data,
+							weather=form.weather.data,
+							style=form.style.data)
+	db.session.add(survey_result)
+	db.session.commit()
+
+	comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
+	file_saver_local("abstract", comp_str)
+	mallet_runner_local("abstract")
+
+	global topics
+	global phiMatrices
+
+	topItemsByStyleWord = getItemsByStyle(topics,phiMatrices,"abstract")
+	print(topItemsByStyleWord)
+	# return jsonify(doctops_return)
+	return jsonify(topItemsByStyleWord)
+
+
 @app.route('/thankyou', methods=['GET','POST'])
 def thankyou():
 	return render_template("thankpage.html")
@@ -110,33 +103,6 @@ def file_saver_local(AorC, str):
 	else:
 		with open("app/mallet/abstract_words.txt", "w") as f:
 			f.write(str)
-
-def file_saver_AWS(AorC, str):
-	if AorC == "concrete":
-		with open(AWS_MALLET_FILES+"concrete_words.txt", "w") as f:
-			f.write(str)
-	else:
-		with open(AWS_MALLET_FILES+"abstract_words.txt", "w") as f:
-			f.write(str)
-
-def mallet_runner_AWS(AorC):
-	command1 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input /home/ubuntu/Ding/FlaskDemo/app/mallet/concrete_words.txt --output /home/ubuntu/Ding/FlaskDemo/app/mallet/concrete_out.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from /home/ubuntu/Ding/FlaskDemo/app/mallet/concrete.sequences"
-	command2 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input /home/ubuntu/Ding/FlaskDemo/app/mallet/concrete_out.sequences --inferencer /home/ubuntu/Ding/FlaskDemo/app/mallet/inferencer-1.output.0 --output-doc-topics /home/ubuntu/Ding/FlaskDemo/app/mallet/c2adoctops"
-
-	command3 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet import-file --input /home/ubuntu/Ding/FlaskDemo/app/mallet/abstract_words.txt --output /home/ubuntu/Ding/FlaskDemo/app/mallet/abstract_output.sequences --keep-sequence --token-regex '[\p{L}\p{P}\p{N}]*\p{L}' --use-pipe-from /home/ubuntu/Ding/FlaskDemo/app/mallet/abstract.sequences"
-	command4 = "/home/ubuntu/Ding/mallet-2.0.8RC3/bin/mallet infer-topics --input /home/ubuntu/Ding/FlaskDemo/app/mallet/abstract_output.sequences --inferencer /home/ubuntu/Ding/FlaskDemo/app/mallet/inferencer-1.output.1 --output-doc-topics /home/ubuntu/Ding/FlaskDemo/app/mallet/a2cdoctops"
-
-	if AorC == "concrete":
-		os.system(command1)
-		print("done")
-		os.system(command2)
-		print("done2")
-	else:
-		os.system(command3)
-		print("done3")
-		os.system(command4)
-		print("done4")
-	return
 
 
 def mallet_runner_local(AorC):
@@ -256,26 +222,4 @@ def getItemsByStyle(topics,phiMatrices,AorC):
 		topItemsByStyleWord[sty]=tempres
 	return topItemsByStyleWord
 
-
-
-
-
-@app.route('/populate', methods=['POST'])
-def populate():
-	if Picture.query.filter_by(link="f8d2a81b4c09364384a4322406ad47e8ce7ba38b.jpg").first() is None:
-		u = Picture(name="Sheer jacket", link="f8d2a81b4c09364384a4322406ad47e8ce7ba38b.jpg")
-		db.session.add(u)
-		db.session.commit()
-	return_data = {'name':'Sheer jacket', 'id':'2', 'link':'f8d2a81b4c09364384a4322406ad47e8ce7ba38b.jpg'}
-	return jsonify(return_data)
-
-
-# @app.route('/deleter', methods=['DELETE'])
-# def delete():
-# 	u = Picture.query.filter_by(link="f8d2a81b4c09364384a4322406ad47e8ce7ba38b.jpg").first()
-# 	delid = u.id
-# 	if u is not None:
-# 		db.session.delete(u)
-# 		db.session.commit()
-# 	return jsonify({'delid':delid})
 
