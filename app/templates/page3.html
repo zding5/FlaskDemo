@@ -70,6 +70,7 @@ p{
 				<ul>
 					<!-- <li><input type="submit" value="SAVE" style = "background:  #BBD8D8; color: #566D7E;"></li> -->
 					<li><input id="savebutton" type="submit" value="SAVE" style = "background:  #BBD8D8; color: #566D7E;"></li>
+					<li><input id="finishbutton" type="submit" value="FINISH" style = "background:  #BBD8D8; color: #566D7E;"></li>
 				</ul>
 			</div>
 		</div>
@@ -113,7 +114,7 @@ p{
 					<br />
 				</table>
 			</form>
-	
+			<div id="loadingtext" style="visibility:hidden"><h3>Smartly coming up with fashion outfit advice for you ...</h3></div>	
 			<div id="results"></div>
 
 		</div>
@@ -127,10 +128,12 @@ p{
 		// $("button").on("click", function() {
 		$("#savebutton").on("click", function() {
 			console.log("ha");
+			$("#loadingtext").css("visibility","visible");
 			$.post(
 				"{{url_for('handle_survey_page3')}}",
 				$("form").serialize(),
 				function(response){
+					$("#loadingtext").css("visibility","hidden");
 					for(key in response){
 						// console.log(response[key]);
 						// $(".wrapper").append("<p>"+response[key]+"</p>");
@@ -140,6 +143,13 @@ p{
 					// $("div.wrapper").append(response);
 				}
 			);
+		});
+
+		document.getElementById("finishbutton").addEventListener("click", function() {
+				var form = document.createElement('form');
+				form.method = "GET";
+				form.action = "{{url_for('thankyou')}}";
+				form.submit();
 		});
 
 	</script>

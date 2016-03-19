@@ -19,23 +19,25 @@ phiMatrices = None
 topItemsByTopic = None
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET','POST'])
+@app.route('/index', methods=['GET','POST'])
 def index():
-	pics = Picture.query.all()
-	return render_template('index.html', pics = pics)
+
+	if request.method == "POST":
+		global topics
+		global items
+		global phiMatrices
+		global topItemsByTopic
+		topics, items, phiMatrices, topItemsByTopic = getTopics()
+		return "done"
+	return render_template("index.html")
+
+
 
 
 @app.route('/page3', methods=['GET','POST'])
 def survey_page3():
 	form = surveyForm()
-
-	global topics
-	global items
-	global phiMatrices
-	global topItemsByTopic
-
-	topics, items, phiMatrices, topItemsByTopic = getTopics()
 
 	return render_template('page3.html', form=form)
 
@@ -69,16 +71,7 @@ def handle_survey_page3():
 @app.route('/page1', methods=['GET','POST'])
 def survey_page1():
 	# form = outfitcollection()
-	if request.method == "POST":
-		return redirect(url_for("survey_page3"))
 	form = outfitForm()
-
-	global topics
-	global items
-	global phiMatrices
-	global topItemsByTopic
-
-	topics, items, phiMatrices, topItemsByTopic = getTopics()
 
 	return render_template('page1.html', form=form)
 
@@ -106,6 +99,9 @@ def handle_survey_page1():
 	print(topItemsByStyleWord)
 	return jsonify(topItemsByStyleWord)
 
+@app.route('/thankyou', methods=['GET','POST'])
+def thankyou():
+	return render_template("thankpage.html")
 
 def file_saver_local(AorC, str):
 	if AorC == "concrete":
