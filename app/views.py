@@ -91,6 +91,14 @@ def handle_survey_page3():
 	# return jsonify(doctops_return)
 	return jsonify(topItemsByStyleWord)
 
+@app.route('/page2', methods=['GET', 'POST'])
+def survey_page2():
+	pass
+
+@app.route('/page21', methods=['GET', 'POST'])
+def handle_survey_page2():
+	
+
 
 @app.route('/thankyou', methods=['GET','POST'])
 def thankyou():

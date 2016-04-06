@@ -11,7 +11,9 @@ $(function() {
     }
  
     // $( "#tags" )
-    $(".ui-widget").find("input")
+    $(".ui-widget").find("input, textarea")
+    // $(".ui-widget").find("textarea")
+
       // don't navigate away from the field on tab when selecting an item
       .bind( "keydown", function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB &&
