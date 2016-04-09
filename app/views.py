@@ -18,18 +18,18 @@ items = None
 phiMatrices = None
 topItemsByTopic = None
 
-url2lab_file = "data/labelLookupNew.p"
-url2jpg_file = "data/jpg2Url.p"
+# url2lab_file = "data/labelLookupNew.p"
+# url2jpg_file = "data/jpg2Url.p"
 
-url2lab = pickle.load(open(url2lab_file, "rb"))
-url2jpg = pickle.load(open(url2jpg_file, "rb"))
-jpg2lab = dict()
-for k in url2lab.keys():
-    if k in url2jpg.keys():
-        jpgname = url2jpg[k]
-        jpg2lab[jpgname] = url2lab[k]
+# url2lab = pickle.load(open(url2lab_file, "rb"))
+# url2jpg = pickle.load(open(url2jpg_file, "rb"))
+# jpg2lab = dict()
+# for k in url2lab.keys():
+    # if k in url2jpg.keys():
+        # jpgname = url2jpg[k]
+        # jpg2lab[jpgname] = url2lab[k]
 
-km = dict()
+# km = dict()
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/index', methods=['GET','POST'])
