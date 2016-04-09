@@ -6,6 +6,9 @@ import json
 import os, operator
 import pickle
 import numpy as np
+import pickle
+import heapq as hq
+from sklearn.cluster import KMeans
 
 
 LOCAL_MALLET_APP = "mallet-2.0.8RC3/bin/mallet"
@@ -15,6 +18,18 @@ items = None
 phiMatrices = None
 topItemsByTopic = None
 
+url2lab_file = "data/labelLookupNew.p"
+url2jpg_file = "data/jpg2Url.p"
+
+url2lab = pickle.load(open(url2lab_file, "rb"))
+url2jpg = pickle.load(open(url2jpg_file, "rb"))
+jpg2lab = dict()
+for k in url2lab.keys():
+    if k in url2jpg.keys():
+        jpgname = url2jpg[k]
+        jpg2lab[jpgname] = url2lab[k]
+
+km = dict()
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/index', methods=['GET','POST'])
@@ -60,6 +75,13 @@ def handle_survey_page1():
 	print(topItemsByStyleWord)
 	return jsonify(topItemsByStyleWord)
 
+@app.route('/page2', methods=['GET', 'POST'])
+def survey_page2():
+	pass
+
+@app.route('/page21', methods=['GET', 'POST'])
+def handle_survey_page2():
+	pass
 
 @app.route('/page3', methods=['GET','POST'])
 def survey_page3():
@@ -87,18 +109,35 @@ def handle_survey_page3():
 	global phiMatrices
 
 	topItemsByStyleWord = getItemsByStyle(topics,phiMatrices,"abstract")
-	print(topItemsByStyleWord)
+	# print(topItemsByStyleWord)
 	# return jsonify(doctops_return)
-	return jsonify(topItemsByStyleWord)
+	# return jsonify(topItemsByStyleWord)
+	result_words = topItemsByStyleWord[list(topItemsByStyleWord.keys())[0]]
+	top100, allwords = ComputeMatch(jpg2lab, result_words)
+	bin_dict = gen_binary_lists(allwords, top100)
+	global km
+	km = kmeans_clustering(allwords, bin_dict)
+	# for label in km.keys():
+	# 	print("cluster"+str(label))
+	# 	for key in km[label]:
+	# 		print(key, jpg2lab[key])
+	# 	print("\n\n\n")
+	return "done"
 
-@app.route('/page2', methods=['GET', 'POST'])
-def survey_page2():
+
+@app.route('/page4', methods=['GET','POST'])
+def survey_page4():
+	global km
+	# km = kmeans_clustering(allwords, bin_dict)
+	for label in km.keys():
+		print("cluster"+str(label))
+		for key in km[label]:
+			print(key, jpg2lab[key])
+		print("\n\n\n")
+
+@app.route('/page41', methods=['GET','POST'])
+def handle_survey_page4():
 	pass
-
-@app.route('/page21', methods=['GET', 'POST'])
-def handle_survey_page2():
-	
-
 
 @app.route('/thankyou', methods=['GET','POST'])
 def thankyou():
@@ -133,6 +172,37 @@ def mallet_runner_local(AorC):
 		print("done4")
 	return
 
+# def dataPreprocessing(labels,keyfile,wordweightfile):
+# 	topics = {}
+# 	with open(keyfile) as f:
+# 		for lines in f:
+# 			if len(lines.split('\t')) == 2:
+# 				data = lines.split('\t')
+# 				topics[data[0]] = {}
+# 				topics[data[0]]['weight'] = float(data[1].strip())
+# 	with open(wordweightfile) as f:
+# 		for lines in f:
+# 			line = lines.split('\t')
+# 			if 'data' not in topics[line[0]]:
+# 				topics[line[0]]['data']={}
+# 				for l in labels:
+# 					topics[line[0]]['data'][l]={}
+# 			for l in labels:
+# 				if line[1] in labels[l]:
+# 					topics[line[0]]['data'][l][line[1]] = float(line[2].strip())
+# 	for t in topics:
+# 		topics[t]['totalweight']=0
+# 		for l in topics[t]['data']:
+# 			for elt in topics[t]['data'][l]:
+# 				topics[t]['totalweight']+= topics[t]['data'][l][elt]
+# 	items = {}
+# 	for t in topics:
+# 		for l in topics[t]['data']:
+# 			if l not in items:
+# 				items[l]=set()
+# 			items[l] = items[l] | set(topics[t]['data'][l].keys())
+# 	return (topics,items)
+
 def dataPreprocessing(labels,keyfile,wordweightfile):
 	topics = {}
 	with open(keyfile) as f:
@@ -151,11 +221,13 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 			for l in labels:
 				if line[1] in labels[l]:
 					topics[line[0]]['data'][l][line[1]] = float(line[2].strip())
+	print(topics.keys())
 	for t in topics:
-		topics[t]['totalweight']=0
+		topics[t]['totalweight']={}
 		for l in topics[t]['data']:
+			topics[t]['totalweight'][l]=0
 			for elt in topics[t]['data'][l]:
-				topics[t]['totalweight']+= topics[t]['data'][l][elt]
+				topics[t]['totalweight'][l]+= topics[t]['data'][l][elt]
 	items = {}
 	for t in topics:
 		for l in topics[t]['data']:
@@ -166,22 +238,21 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 
 def getTopics():
 	phiMatrices = {}
-	labels = {}
+	# numTopics = 150
+	numTopics = 25
+	labels = dict()
 	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
 	labels['abstract'] = pickle.load(open("app/mallet/abstract.p","rb"))
-	wordweightfile = "app/mallet/topicWordWeight.output"
-	keyfile = "app/mallet/icmsdkeys.txt"
-	# labels['concrete'] = pickle.load(open(AWS_MALLET_FILES+"concrete.p","rb"))
-	# labels['abstract'] = pickle.load(open(AWS_MALLET_FILES+"abstract.p","rb"))
-	# wordweightfile = AWS_MALLET_FILES+"topicWordWeight.output"
-	# keyfile = AWS_MALLET_FILES+"icmsdkeys.txt"
 
-	(topics,items)= dataPreprocessing(labels, keyfile,wordweightfile)
-	# mp = computeMarginalProb(items,topics)
-	numTopics = 150
-	for jj in topics:
+	# wordweightfile = "/Users/vaccaro/mallet-2.0.8RC2/gridsearch/UIST/results/" + str(numTopics) +"/topicWordWeight.output"
+	wordweightfile = "app/mallet/topicWordWeight.output"
+	# keyfile = "/Users/vaccaro/mallet-2.0.8RC2/gridsearch/UIST/results/" + str(numTopics) +"/icmsdkeys.txt"
+	keyfile = "app/mallet/icmsdkeys.txt"
+	(topics,items)= dataPreprocessing(labels,keyfile,wordweightfile)
+	for j in range(numTopics):
+		jj = str(j)
 		for l in topics['0']['data']:
-			vals = np.array([i/float(topics[jj]['totalweight']) for i in topics[jj]['data'][l].values()])
+			vals = np.array([i/float(topics[jj]['totalweight'][l]) for i in topics[jj]['data'][l].values()])
 			try:
 				phiMatrices[l]=np.vstack((phiMatrices[l],vals))
 			except:
@@ -193,8 +264,42 @@ def getTopics():
 		for l in topics['0']['data']:
 			res = topics[t]['data'][l]
 			sortres = sorted(res.items(),key=operator.itemgetter(1))
-			topItemsByTopic[t][l]=sortres[-25:]
+			topItemsByTopic[t][l]=[i for i in reversed(sortres[-25:])]
 	return (topics, items, phiMatrices, topItemsByTopic)
+
+# def getTopics():
+# 	phiMatrices = {}
+# 	labels = {}
+# 	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
+# 	labels['abstract'] = pickle.load(open("app/mallet/abstract.p","rb"))
+# 	wordweightfile = "app/mallet/topicWordWeight.output"
+# 	keyfile = "app/mallet/icmsdkeys.txt"
+# 	# labels['concrete'] = pickle.load(open(AWS_MALLET_FILES+"concrete.p","rb"))
+# 	# labels['abstract'] = pickle.load(open(AWS_MALLET_FILES+"abstract.p","rb"))
+# 	# wordweightfile = AWS_MALLET_FILES+"topicWordWeight.output"
+# 	# keyfile = AWS_MALLET_FILES+"icmsdkeys.txt"
+
+# 	(topics,items)= dataPreprocessing(labels, keyfile,wordweightfile)
+# 	# mp = computeMarginalProb(items,topics)
+# 	numTopics = 150
+# 	for jj in topics:
+# 	# for j in range(numTopics):
+# 		# jj = str(j)
+# 		for l in topics['0']['data']:
+# 			vals = np.array([i/float(topics[jj]['totalweight'][l]) for i in topics[jj]['data'][l].values()])
+# 			try:
+# 				phiMatrices[l]=np.vstack((phiMatrices[l],vals))
+# 			except:
+# 				phiMatrices[l]=vals
+# 	topItemsByTopic = {}
+# 	for t in topics:
+# 		if t not in topItemsByTopic:
+# 			topItemsByTopic[t]={}
+# 		for l in topics['0']['data']:
+# 			res = topics[t]['data'][l]
+# 			sortres = sorted(res.items(),key=operator.itemgetter(1))
+# 			topItemsByTopic[t][l]=sortres[-25:]
+# 	return (topics, items, phiMatrices, topItemsByTopic)
 
 def getItemsByStyle(topics,phiMatrices,AorC):
 	inferredTheta = {}
@@ -229,5 +334,62 @@ def getItemsByStyle(topics,phiMatrices,AorC):
 		tempres = [itemnames[i] for i in reversed(inds[-25:])]
 		topItemsByStyleWord[sty]=tempres
 	return topItemsByStyleWord
+
+def fixed_heap_insert(h, size, input):
+	if len(h) < size:
+		hq.heappush(h, input)
+	else:
+		if input > h[0]:
+			hq.heappushpop(h, input)
+	return h
+
+def ComputeMatch(lookup, tags):
+	tags = set(tags)
+	tops = []
+	allwords = set()
+	for k, v in lookup.items():
+		cur_score = 0
+		intersection = []
+		union = []
+		v_set = set(v)
+		intersection = tags & v_set
+		union = tags | v_set
+		cur_score = float(len(intersection)/len(union))
+		fixed_heap_insert(tops, 100, (cur_score,(k,v)))
+		allwords = allwords | v_set
+	print("Done Matching")
+	return sorted(tops), allwords
+
+def to_binary_list(allwords, outfit):
+	allwords = list(allwords)
+	bin_list = np.zeros(len(allwords), dtype=np.int8)
+	for word in outfit:
+		bin_list[allwords.index(word)] = 1
+	return bin_list
+
+def gen_binary_lists(allwords, tops):
+	allwords = list(allwords)
+	bin_dict = dict()
+	for outfit in tops:
+		print(outfit[1][0])
+		bin_dict[outfit[1][0]] = to_binary_list(allwords, outfit[1][1])
+	return bin_dict
+
+def kmeans_clustering(allwords, bin_dict, k=4):
+	arr = np.empty((0,len(allwords)), int)
+	cluster = KMeans(init='k-means++', n_clusters=k, n_init=10)
+	for key in bin_dict.keys():
+		arr = np.append(arr, [bin_dict[key]], axis=0)
+	print(arr)
+	results = cluster.fit_predict(arr)
+	cluster_dict = dict()
+	print(type(k))
+	for i in range(k):
+		cluster_dict[i] = []
+	keys = list(bin_dict.keys())
+	#     print(keys)
+	for i in range(len(results)):
+		cluster_dict[results[i]].append(keys[i])
+	return cluster_dict
 
 
