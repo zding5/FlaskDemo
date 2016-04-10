@@ -239,7 +239,7 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 def getTopics():
 	phiMatrices = {}
 	# numTopics = 150
-	numTopics = 25
+	numTopics = 50
 	labels = dict()
 	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
 	labels['abstract'] = pickle.load(open("app/mallet/abstract.p","rb"))
@@ -305,23 +305,24 @@ def getItemsByStyle(topics,phiMatrices,AorC):
 	inferredTheta = {}
 	if AorC == "concrete":
 		thetafile = "app/mallet/c2adoctops"
-		# thetafile = AWS_MALLET_FILES+"c2adoctops"
+    # thetafile = AWS_MALLET_FILES+"c2adoctops"
 	else:
 		thetafile = "app/mallet/a2cdoctops"
-		# thetafile = AWS_MALLET_FILES+"a2cdoctops"
+    # thetafile = AWS_MALLET_FILES+"a2cdoctops"
 	with open(thetafile,"r") as f:
 		for lines in f:
 			data = lines.split('\t')
 			try:
 				float(data[0])
 				if data[1] not in inferredTheta:
-	                # print data
+                    # print data
 					inferredTheta[data[1]] = [float(i.strip()) for i in data[2:]]
-	                # print inferredTheta[data[1]]
+            # print inferredTheta[data[1]]
 			except:
 				count = 0
 	topItemsByStyleWord = {}
 	for sty in inferredTheta:
+		inferredTheta[sty]=[i if i > np.mean(inferredTheta[sty]) + 2*np.std(inferredTheta[sty]) else 0 for i in inferredTheta[sty]]
 		if AorC == "concrete":
 			l = "abstract"
 		else:
@@ -334,6 +335,42 @@ def getItemsByStyle(topics,phiMatrices,AorC):
 		tempres = [itemnames[i] for i in reversed(inds[-25:])]
 		topItemsByStyleWord[sty]=tempres
 	return topItemsByStyleWord
+
+# def getItemsByStyle(topics,phiMatrices,AorC):
+# 	inferredTheta = {}
+# 	if AorC == "concrete":
+# 		thetafile = "app/mallet/c2adoctops"
+# 		# thetafile = AWS_MALLET_FILES+"c2adoctops"
+# 	else:
+# 		thetafile = "app/mallet/a2cdoctops"
+# 		# thetafile = AWS_MALLET_FILES+"a2cdoctops"
+# 	with open(thetafile,"r") as f:
+# 		for lines in f:
+# 			data = lines.split('\t')
+# 			try:
+# 				float(data[0])
+# 				if data[1] not in inferredTheta:
+# 	                # print data
+# 					# inferredTheta[data[1]] = [float(i.strip()) for i in data[2:]]
+# 					inferredTheta[data[1]] = [1.0] + [float(0)] * len(data[3:])
+
+# 					print (inferredTheta[data[1]])
+# 			except:
+# 				count = 0
+# 	topItemsByStyleWord = {}
+# 	for sty in inferredTheta:
+# 		if AorC == "concrete":
+# 			l = "abstract"
+# 		else:
+# 			l = "concrete"
+# 		topItemsByStyleWord[sty]={}
+# 		#            for lang in phiMatrices:
+# 		rawres = np.dot(inferredTheta[sty],phiMatrices[l])
+# 		itemnames = list(topics['0']['data'][l].keys())
+# 		inds = sorted(range(len(rawres)), key=lambda k: rawres[k])
+# 		tempres = [itemnames[i] for i in reversed(inds[-25:])]
+# 		topItemsByStyleWord[sty]=tempres
+# 	return topItemsByStyleWord
 
 def fixed_heap_insert(h, size, input):
 	if len(h) < size:
