@@ -23,13 +23,9 @@ topItemsByTopic = None
 url2lab_file = "data/labelLookupNew.p"
 url2jpg_file = "data/jpg2Url.p"
 
-url2lab = pickle.load(open(url2lab_file, "rb"))
-url2jpg = pickle.load(open(url2jpg_file, "rb"))
+url2lab = None
+url2jpg = None
 jpg2lab = dict()
-for k in url2lab.keys():
-    if k in url2jpg.keys():
-        jpgname = url2jpg[k]
-        jpg2lab[jpgname] = url2lab[k]
 
 km = dict()
 numk = 5
@@ -44,6 +40,15 @@ def index():
 		global phiMatrices
 		global topItemsByTopic
 		topics, items, phiMatrices, topItemsByTopic = getTopics()
+		
+		url2lab = pickle.load(open(url2lab_file, "rb"))
+		url2jpg = pickle.load(open(url2jpg_file, "rb"))
+		# jpg2lab = dict()
+		for k in url2lab.keys():
+			if k in url2jpg.keys():
+				jpgname = url2jpg[k]
+				jpg2lab[jpgname] = url2lab[k]
+
 		return "done"
 	return render_template("index.html")
 
@@ -107,14 +112,14 @@ def survey_page3():
 
 @app.route('/page4', methods=['GET','POST'])
 def survey_page4():
+	for label in km.keys():
+		print("cluster"+str(label))
+		for key in km[label]:
+			print(key, jpg2lab[key])
+		print("\n\n\n")
 	return	render_template('page4.html', results=km, numk=numk)
 	# global km
 	# km = kmeans_clustering(allwords, bin_dict)
-	# for label in km.keys():
-		# print("cluster"+str(label))
-		# for key in km[label]:
-			# print(key, jpg2lab[key])
-		# print("\n\n\n")
 
 
 @app.route('/thankyou', methods=['GET','POST'])
