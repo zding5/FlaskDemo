@@ -134,11 +134,12 @@ p{
 				$("form").serialize(),
 				function(response){
 					$("#loadingtext").css("visibility","hidden");
-					$("#results").append("<p>"+response+"</p>");
-					// for(key in response){
-
-						// $("#results").append("<p>"+response[key]+"</p>");
-					// }
+					// $("#results").append("<p>"+response+"</p>");
+					for(key in response){
+						for(ind in response[key]){
+							$("#results").append("<p>"+response[key][ind]+"</p>");
+						}
+					}
 				}
 			);
 		});
@@ -146,8 +147,8 @@ p{
 		document.getElementById("finishbutton").addEventListener("click", function() {
 				var form = document.createElement('form');
 				form.method = "GET";
-				// form.action = "{{url_for('thankyou')}}";
-				form.action = "{{url_for('survey_page4')}}";
+				form.action = "{{url_for('thankyou')}}";
+				// form.action = "{{url_for('survey_page4')}}";
 				form.submit();
 		});
 

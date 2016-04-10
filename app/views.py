@@ -109,20 +109,20 @@ def handle_survey_page3():
 	global phiMatrices
 
 	topItemsByStyleWord = getItemsByStyle(topics,phiMatrices,"abstract")
-	# print(topItemsByStyleWord)
-	# return jsonify(doctops_return)
-	# return jsonify(topItemsByStyleWord)
-	result_words = topItemsByStyleWord[list(topItemsByStyleWord.keys())[0]]
-	top100, allwords = ComputeMatch(jpg2lab, result_words)
-	bin_dict = gen_binary_lists(allwords, top100)
-	global km
-	km = kmeans_clustering(allwords, bin_dict)
+	print(topItemsByStyleWord)
+	return jsonify(topItemsByStyleWord)
+	
+	# result_words = topItemsByStyleWord[list(topItemsByStyleWord.keys())[0]]
+	# top100, allwords = ComputeMatch(jpg2lab, result_words)
+	# bin_dict = gen_binary_lists(allwords, top100)
+	# global km
+	# km = kmeans_clustering(allwords, bin_dict)
 	# for label in km.keys():
 	# 	print("cluster"+str(label))
 	# 	for key in km[label]:
 	# 		print(key, jpg2lab[key])
 	# 	print("\n\n\n")
-	return "done"
+	# return "done"
 
 
 @app.route('/page4', methods=['GET','POST'])
