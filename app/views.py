@@ -19,6 +19,8 @@ phiMatrices = None
 toppage1 = None
 toppage3 = None
 topItemsByTopic = None
+top100 = None
+classified_top100 = None
 
 url2lab_file = "data/labelLookupNew.p"
 url2jpg_file = "data/jpg2Url.p"
@@ -28,7 +30,8 @@ url2jpg = None
 jpg2lab = dict()
 
 km = dict()
-numk = 5
+# numk = 5
+numk = 10
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/index', methods=['GET','POST'])
@@ -98,12 +101,17 @@ def survey_page3():
 		global toppage3
 		toppage3 = getItemsByStyle(topics,phiMatrices,"abstract")
 		print(toppage3)
-
+		global top100
 		result_words = toppage3[list(toppage3.keys())[0]]
 		top100, allwords = ComputeMatch(jpg2lab, result_words)
-		bin_dict = gen_binary_lists(allwords, top100)
-		global km
-		km = kmeans_clustering(allwords, bin_dict, k=numk)
+		# print(top100)
+		global classified_top100
+		classified_top100 = classify_tops(top100)
+		for item in classified_top100:
+			print(item)
+		# bin_dict = gen_binary_lists(allwords, top100)
+		# global km
+		# km = kmeans_clustering(allwords, bin_dict, k=numk)
 
 		return redirect(url_for('survey_page4'))
 	
@@ -112,14 +120,14 @@ def survey_page3():
 
 @app.route('/page4', methods=['GET','POST'])
 def survey_page4():
-	for label in km.keys():
-		print("cluster"+str(label))
-		for key in km[label]:
-			print(key, jpg2lab[key])
-		print("\n\n\n")
-	return	render_template('page4.html', results=km, numk=numk)
-	# global km
-	# km = kmeans_clustering(allwords, bin_dict)
+	# for label in km.keys():
+		# print("cluster"+str(label))
+		# for key in km[label]:
+			# print(key, jpg2lab[key])
+		# print("\n\n\n")
+
+	# return	render_template('page4.html', results=km, numk=numk)
+	return render_template('page4.html', top100=classified_top100)
 
 
 @app.route('/thankyou', methods=['GET','POST'])
@@ -241,7 +249,9 @@ def getItemsByStyle(topics,phiMatrices,AorC):
 				count = 0
 	topItemsByStyleWord = {}
 	for sty in inferredTheta:
-		inferredTheta[sty]=[i if i > np.mean(inferredTheta[sty]) + 2*np.std(inferredTheta[sty]) else 0 for i in inferredTheta[sty]]
+		# inferredTheta[sty]=[i if i > np.mean(inferredTheta[sty]) + 2*np.std(inferredTheta[sty]) else 0 for i in inferredTheta[sty]]
+		inferredTheta[sty]=[i if i > np.mean(inferredTheta[sty]) + 1.5*np.std(inferredTheta[sty]) else 0 for i in inferredTheta[sty]]
+
 		if AorC == "concrete":
 			l = "abstract"
 		else:
@@ -313,5 +323,50 @@ def kmeans_clustering(allwords, bin_dict, k=4):
 	for i in range(len(results)):
 		cluster_dict[results[i]].append(keys[i])
 	return cluster_dict
+
+
+def classify_tops(tops):
+	classified = dict()
+	for item in tops:
+		cate = find_most_freq(item[1][1])
+		classified.setdefault(cate, []).append(item[1])
+	print(classified)
+	return classified
+
+
+def find_most_freq(alist):
+	s_alist = sorted(alist)
+	most_freq = ""
+	max_count = 0
+	cur_word = ""
+	cur_count = 0
+	for word in s_alist:
+		if word != cur_word:
+			cur_word = word
+			cur_count = 1
+		else:
+			cur_count += 1
+		if cur_count > max_count:
+			max_count = cur_count
+			most_freq = cur_word
+	print(most_freq)
+	return most_freq
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
