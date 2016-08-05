@@ -4,10 +4,11 @@ from wtforms.validators import DataRequired, Length
 
 class surveyForm(Form):
 	# for page 3
-	event = StringField('event')
-	location = StringField('location')
-	weather = StringField('weather')
-	style = StringField('style')
+	event = StringField('event', validators=[DataRequired()])
+	# event = StringField('event')
+	# location = StringField('location')
+	# weather = StringField('weather')
+	# style = StringField('style')
 
 # class outfitcollection(Form):
 class outfitForm(Form):

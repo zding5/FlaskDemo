@@ -31,9 +31,12 @@ url2lab = None
 url2jpg = None
 jpg2lab = dict()
 
-km = dict()
+labels = dict()
+wholeVocab = set()
+
+# km = dict()
 # numk = 5
-numk = 10
+# numk = 10
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/index', methods=['GET','POST'])
@@ -88,15 +91,31 @@ def survey_page3():
 	form = surveyForm(request.form)
 	if form.validate_on_submit():
 		print(form.event.data)
-		survey_result = Survey(event=form.event.data,
-							location=form.location.data,
-							weather=form.weather.data,
-							style=form.style.data)
+		# survey_result = Survey(event=form.event.data,
+		# 					location=form.location.data,
+		# 					weather=form.weather.data,
+		# 					style=form.style.data)
+		survey_result = Survey(event = form.event.data)
 		db.session.add(survey_result)
 		db.session.commit()
 
-		comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
-		file_saver_local("abstract", comp_str)
+		# comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
+		comp_str = form.event.data
+		finalDoc = []
+		dind = []
+		text1 = (comp_str.translate(str.maketrans({key: None for key in string.punctuation}))).split()
+		for i in range(len(text1)):
+			if i not in dind:
+				for n in list(reversed(range(1,5))):
+					if i not in dind:
+						nGrams(n, i, text1, wholeVocab, finalDoc, dind)
+		print(finalDoc)
+		final_comp_str = ""
+		for word in finalDoc:
+			final_comp_str = final_comp_str + word + " "
+
+		# file_saver_local("abstract", comp_str)
+		file_saver_local("abstract", final_comp_str)
 		mallet_runner_local("abstract")
 		global topics
 		global phiMatrices
@@ -107,11 +126,8 @@ def survey_page3():
 		top100, allwords = ComputeMatch(jpg2lab, result_words)
 		global classified_top100
 		classified_top100 = classify_tops(top100, at_least_num_items=5)
-		for item in classified_top100:
-			print(item)
-		# bin_dict = gen_binary_lists(allwords, top100)
-		# global km
-		# km = kmeans_clustering(allwords, bin_dict, k=numk)
+		# for item in classified_top100:
+			# print(item)
 
 		return redirect(url_for('survey_page4'))
 	
@@ -120,13 +136,6 @@ def survey_page3():
 
 @app.route('/page4', methods=['GET','POST'])
 def survey_page4():
-	# for label in km.keys():
-		# print("cluster"+str(label))
-		# for key in km[label]:
-			# print(key, jpg2lab[key])
-		# print("\n\n\n")
-
-	# return	render_template('page4.html', results=km, numk=numk)
 	return render_template('page4.html', top100=classified_top100)
 
 
@@ -181,7 +190,7 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 			for l in labels:
 				if line[1] in labels[l]:
 					topics[line[0]]['data'][l][line[1]] = float(line[2].strip())
-	print(topics.keys())
+	# print(topics.keys())
 	for t in topics:
 		topics[t]['totalweight']={}
 		for l in topics[t]['data']:
@@ -200,9 +209,12 @@ def getTopics():
 	phiMatrices = {}
 	# numTopics = 150
 	numTopics = 50
-	labels = dict()
+	# labels = dict()
+	global labels
+	global wholeVocab
 	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
 	labels['abstract'] = pickle.load(open("app/mallet/abstract.p","rb"))
+	wholeVocab = labels['concrete'] | labels['abstract']
 
 	# wordweightfile = "/Users/vaccaro/mallet-2.0.8RC2/gridsearch/UIST/results/" + str(numTopics) +"/topicWordWeight.output"
 	wordweightfile = "app/mallet/topicWordWeight.output"
@@ -292,37 +304,37 @@ def ComputeMatch(lookup, tags):
 	print("Done Matching")
 	return sorted(tops), allwords
 
-def to_binary_list(allwords, outfit):
-	allwords = list(allwords)
-	bin_list = np.zeros(len(allwords), dtype=np.int8)
-	for word in outfit:
-		bin_list[allwords.index(word)] = 1
-	return bin_list
+# def to_binary_list(allwords, outfit):
+# 	allwords = list(allwords)
+# 	bin_list = np.zeros(len(allwords), dtype=np.int8)
+# 	for word in outfit:
+# 		bin_list[allwords.index(word)] = 1
+# 	return bin_list
 
-def gen_binary_lists(allwords, tops):
-	allwords = list(allwords)
-	bin_dict = dict()
-	for outfit in tops:
-		print(outfit[1][0])
-		bin_dict[outfit[1][0]] = to_binary_list(allwords, outfit[1][1])
-	return bin_dict
+# def gen_binary_lists(allwords, tops):
+# 	allwords = list(allwords)
+# 	bin_dict = dict()
+# 	for outfit in tops:
+# 		print(outfit[1][0])
+# 		bin_dict[outfit[1][0]] = to_binary_list(allwords, outfit[1][1])
+# 	return bin_dict
 
-def kmeans_clustering(allwords, bin_dict, k=4):
-	arr = np.empty((0,len(allwords)), int)
-	cluster = KMeans(init='k-means++', n_clusters=k, n_init=10)
-	for key in bin_dict.keys():
-		arr = np.append(arr, [bin_dict[key]], axis=0)
-	print(arr)
-	results = cluster.fit_predict(arr)
-	cluster_dict = dict()
-	print(type(k))
-	for i in range(k):
-		cluster_dict[i] = []
-	keys = list(bin_dict.keys())
-	#     print(keys)
-	for i in range(len(results)):
-		cluster_dict[results[i]].append(keys[i])
-	return cluster_dict
+# def kmeans_clustering(allwords, bin_dict, k=4):
+# 	arr = np.empty((0,len(allwords)), int)
+# 	cluster = KMeans(init='k-means++', n_clusters=k, n_init=10)
+# 	for key in bin_dict.keys():
+# 		arr = np.append(arr, [bin_dict[key]], axis=0)
+# 	print(arr)
+# 	results = cluster.fit_predict(arr)
+# 	cluster_dict = dict()
+# 	print(type(k))
+# 	for i in range(k):
+# 		cluster_dict[i] = []
+# 	keys = list(bin_dict.keys())
+# 	#     print(keys)
+# 	for i in range(len(results)):
+# 		cluster_dict[results[i]].append(keys[i])
+# 	return cluster_dict
 
 
 def classify_tops(tops, at_least_num_items):
@@ -360,7 +372,13 @@ def find_most_freq(alist):
 	return most_freq
 
 
-
+def nGrams(n, i, text, vocab, finalDoc, dind):
+	sub = text[i:i+n]
+	ngram = "-".join(sub)
+	if ngram in vocab:
+		print(ngram)
+		finalDoc += [ngram]
+		dind.append(list(range(i, i+n)))
 
 
 
