@@ -9,6 +9,8 @@ import numpy as np
 import pickle
 import heapq as hq
 from sklearn.cluster import KMeans
+import operator
+import string
 
 
 LOCAL_MALLET_APP = "mallet-2.0.8RC3/bin/mallet"
@@ -71,7 +73,7 @@ def survey_page1():
 		global phiMatrices
 		global toppage1
 		toppage1 = getItemsByStyle(topics,phiMatrices,"concrete")
-		print(toppage1)
+		# print(toppage1)
 		return redirect(url_for('survey_page2'))
 	return render_template('page1.html', form=form)
 
@@ -100,13 +102,11 @@ def survey_page3():
 		global phiMatrices
 		global toppage3
 		toppage3 = getItemsByStyle(topics,phiMatrices,"abstract")
-		print(toppage3)
 		global top100
 		result_words = toppage3[list(toppage3.keys())[0]]
 		top100, allwords = ComputeMatch(jpg2lab, result_words)
-		# print(top100)
 		global classified_top100
-		classified_top100 = classify_tops(top100)
+		classified_top100 = classify_tops(top100, at_least_num_items=5)
 		for item in classified_top100:
 			print(item)
 		# bin_dict = gen_binary_lists(allwords, top100)
@@ -325,13 +325,20 @@ def kmeans_clustering(allwords, bin_dict, k=4):
 	return cluster_dict
 
 
-def classify_tops(tops):
+def classify_tops(tops, at_least_num_items):
 	classified = dict()
 	for item in tops:
+		# cate is the most frequent label in the set, used as key
 		cate = find_most_freq(item[1][1])
 		classified.setdefault(cate, []).append(item[1])
-	print(classified)
-	return classified
+	
+	sorted_classified = sorted(classified.items(), key=operator.itemgetter(1))
+	reduced_sorted_classified = [x for x in sorted_classified if len(x[1]) >= 5]
+
+	print(reduced_sorted_classified)
+	return reduced_sorted_classified
+	# classified looks like:
+	# {cate1: [('xxx.jpg', ['labela1', 'labela2', ...]), ('yyy.jpg', ['labelb1', 'labelb2', ...])], cate2:...}
 
 
 def find_most_freq(alist):
@@ -349,7 +356,7 @@ def find_most_freq(alist):
 		if cur_count > max_count:
 			max_count = cur_count
 			most_freq = cur_word
-	print(most_freq)
+	# print(most_freq)
 	return most_freq
 
 
