@@ -47,11 +47,13 @@ def index():
 		global items
 		global phiMatrices
 		global topItemsByTopic
+		print("what3?")
 		topics, items, phiMatrices, topItemsByTopic = getTopics()
-		
+		print("what2?")
 		url2lab = pickle.load(open(url2lab_file, "rb"))
 		url2jpg = pickle.load(open(url2jpg_file, "rb"))
 		# jpg2lab = dict()
+		print("what?")
 		for k in url2lab.keys():
 			if k in url2jpg.keys():
 				jpgname = url2jpg[k]
