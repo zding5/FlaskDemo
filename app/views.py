@@ -24,8 +24,9 @@ topItemsByTopic = None
 top100 = None
 classified_top100 = None
 
-url2lab_file = "data/labelLookupNew.p"
-url2jpg_file = "data/jpg2Url.p"
+# url2lab_file = "data/labelLookupNew.p"
+# url2jpg_file = "data/jpg2Url.p"
+jpg2lab_file = "data/needed_jpg2lab.p"
 
 url2lab = None
 url2jpg = None
@@ -47,17 +48,19 @@ def index():
 		global items
 		global phiMatrices
 		global topItemsByTopic
+		global jpg2lab
 		print("what3?")
 		topics, items, phiMatrices, topItemsByTopic = getTopics()
-		print("what2?")
-		url2lab = pickle.load(open(url2lab_file, "rb"))
-		url2jpg = pickle.load(open(url2jpg_file, "rb"))
+		# print("what2?")
+		# url2lab = pickle.load(open(url2lab_file, "rb"))
+		# url2jpg = pickle.load(open(url2jpg_file, "rb"))
 		# jpg2lab = dict()
-		print("what?")
-		for k in url2lab.keys():
-			if k in url2jpg.keys():
-				jpgname = url2jpg[k]
-				jpg2lab[jpgname] = url2lab[k]
+		# print("what?")
+		# for k in url2lab.keys():
+		# 	if k in url2jpg.keys():
+		# 		jpgname = url2jpg[k]
+		# 		jpg2lab[jpgname] = url2lab[k]
+		jpg2lab = pickle.load(open(jpg2lab_file, "rb"))
 
 		return "done"
 	return render_template("index.html")
