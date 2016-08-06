@@ -24,8 +24,6 @@ topItemsByTopic = None
 top100 = None
 classified_top100 = None
 
-# url2lab_file = "data/labelLookupNew.p"
-# url2jpg_file = "data/jpg2Url.p"
 jpg2lab_file = "data/needed_jpg2lab.p"
 
 url2lab = None
@@ -35,9 +33,6 @@ jpg2lab = dict()
 labels = dict()
 wholeVocab = set()
 
-# km = dict()
-# numk = 5
-# numk = 10
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/index', methods=['GET','POST'])
@@ -51,15 +46,6 @@ def index():
 		global jpg2lab
 		print("what3?")
 		topics, items, phiMatrices, topItemsByTopic = getTopics()
-		# print("what2?")
-		# url2lab = pickle.load(open(url2lab_file, "rb"))
-		# url2jpg = pickle.load(open(url2jpg_file, "rb"))
-		# jpg2lab = dict()
-		# print("what?")
-		# for k in url2lab.keys():
-		# 	if k in url2jpg.keys():
-		# 		jpgname = url2jpg[k]
-		# 		jpg2lab[jpgname] = url2lab[k]
 		jpg2lab = pickle.load(open(jpg2lab_file, "rb"))
 
 		return "done"
@@ -81,7 +67,7 @@ def survey_page1():
 		global phiMatrices
 		global toppage1
 		toppage1 = getItemsByStyle(topics,phiMatrices,"concrete")
-		# print(toppage1)
+
 		return redirect(url_for('survey_page2'))
 	return render_template('page1.html', form=form)
 
@@ -96,31 +82,28 @@ def survey_page3():
 	form = surveyForm(request.form)
 	if form.validate_on_submit():
 		print(form.event.data)
-		# survey_result = Survey(event=form.event.data,
-		# 					location=form.location.data,
-		# 					weather=form.weather.data,
-		# 					style=form.style.data)
+
 		survey_result = Survey(event = form.event.data)
 		db.session.add(survey_result)
 		db.session.commit()
 
-		# comp_str = form.event.data+" "+form.location.data+" "+form.weather.data+" "+form.style.data
 		comp_str = form.event.data
-		finalDoc = []
-		dind = []
-		text1 = (comp_str.translate(str.maketrans({key: None for key in string.punctuation}))).split()
-		for i in range(len(text1)):
-			if i not in dind:
-				for n in list(reversed(range(1,5))):
-					if i not in dind:
-						nGrams(n, i, text1, wholeVocab, finalDoc, dind)
-		print(finalDoc)
-		final_comp_str = ""
-		for word in finalDoc:
-			final_comp_str = final_comp_str + word + " "
 
-		# file_saver_local("abstract", comp_str)
-		file_saver_local("abstract", final_comp_str)
+		# finalDoc = []
+		# dind = []
+		# text1 = (comp_str.translate(str.maketrans({key: None for key in string.punctuation}))).split()
+		# for i in range(len(text1)):
+		# 	if i not in dind:
+		# 		for n in list(reversed(range(1,5))):
+		# 			if i not in dind:
+		# 				nGrams(n, i, text1, wholeVocab, finalDoc, dind)
+		# print(finalDoc)
+		# final_comp_str = ""
+		# for word in finalDoc:
+		# 	final_comp_str = final_comp_str + word + " "
+
+		file_saver_local("abstract", comp_str)
+		# file_saver_local("abstract", final_comp_str)
 		mallet_runner_local("abstract")
 		global topics
 		global phiMatrices
@@ -131,8 +114,6 @@ def survey_page3():
 		top100, allwords = ComputeMatch(jpg2lab, result_words)
 		global classified_top100
 		classified_top100 = classify_tops(top100, at_least_num_items=5)
-		# for item in classified_top100:
-			# print(item)
 
 		return redirect(url_for('survey_page4'))
 	
@@ -195,7 +176,7 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 			for l in labels:
 				if line[1] in labels[l]:
 					topics[line[0]]['data'][l][line[1]] = float(line[2].strip())
-	# print(topics.keys())
+
 	for t in topics:
 		topics[t]['totalweight']={}
 		for l in topics[t]['data']:
@@ -212,9 +193,7 @@ def dataPreprocessing(labels,keyfile,wordweightfile):
 
 def getTopics():
 	phiMatrices = {}
-	# numTopics = 150
 	numTopics = 50
-	# labels = dict()
 	global labels
 	global wholeVocab
 	labels['concrete'] = pickle.load(open("app/mallet/concrete.p","rb"))
@@ -309,38 +288,6 @@ def ComputeMatch(lookup, tags):
 	print("Done Matching")
 	return sorted(tops), allwords
 
-# def to_binary_list(allwords, outfit):
-# 	allwords = list(allwords)
-# 	bin_list = np.zeros(len(allwords), dtype=np.int8)
-# 	for word in outfit:
-# 		bin_list[allwords.index(word)] = 1
-# 	return bin_list
-
-# def gen_binary_lists(allwords, tops):
-# 	allwords = list(allwords)
-# 	bin_dict = dict()
-# 	for outfit in tops:
-# 		print(outfit[1][0])
-# 		bin_dict[outfit[1][0]] = to_binary_list(allwords, outfit[1][1])
-# 	return bin_dict
-
-# def kmeans_clustering(allwords, bin_dict, k=4):
-# 	arr = np.empty((0,len(allwords)), int)
-# 	cluster = KMeans(init='k-means++', n_clusters=k, n_init=10)
-# 	for key in bin_dict.keys():
-# 		arr = np.append(arr, [bin_dict[key]], axis=0)
-# 	print(arr)
-# 	results = cluster.fit_predict(arr)
-# 	cluster_dict = dict()
-# 	print(type(k))
-# 	for i in range(k):
-# 		cluster_dict[i] = []
-# 	keys = list(bin_dict.keys())
-# 	#     print(keys)
-# 	for i in range(len(results)):
-# 		cluster_dict[results[i]].append(keys[i])
-# 	return cluster_dict
-
 
 def classify_tops(tops, at_least_num_items):
 	classified = dict()
@@ -354,8 +301,6 @@ def classify_tops(tops, at_least_num_items):
 
 	print(reduced_sorted_classified)
 	return reduced_sorted_classified
-	# classified looks like:
-	# {cate1: [('xxx.jpg', ['labela1', 'labela2', ...]), ('yyy.jpg', ['labelb1', 'labelb2', ...])], cate2:...}
 
 
 def find_most_freq(alist):
@@ -373,7 +318,6 @@ def find_most_freq(alist):
 		if cur_count > max_count:
 			max_count = cur_count
 			most_freq = cur_word
-	# print(most_freq)
 	return most_freq
 
 
