@@ -1,0 +1,8 @@
+Location:
+
+In FlaskDemo under dddg (not the root folder one)
+
+python3 run.py
+(We need to run with python3, because Sunu's code comp_str.translate is using python3 attribute.)
+
+running at port http://138.68.63.181:2000/
